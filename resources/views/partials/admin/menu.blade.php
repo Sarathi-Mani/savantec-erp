@@ -256,18 +256,18 @@
                                     </span>
                                 </a>
                                 <ul class="dash-submenu">
-                                    <li class="dash-item  {{ (Request::segment(1) == 'employee' ? 'active dash-trigger' : '')}}   ">
-                                        @if(\Auth::user()->type =='Employee')
-                                            @php
-                                                $employee=App\Models\Employee::where('user_id',\Auth::user()->id)->first();
-                                            @endphp
-                                            <a class="dash-link" href="{{route('employee.show',\Illuminate\Support\Facades\Crypt::encrypt($employee->id))}}">{{__('Employee')}}</a>
-                                        @else
-                                            <a href="{{route('employee.index')}}" class="dash-link">
-                                                {{ __('Enquiry Report') }}
-                                            </a>
-                                        @endif
-                                    </li>
+                            <li class="dash-item  {{ (Request::segment(1) == 'enquiry' ? 'active dash-trigger' : '')}}">
+    @if(\Auth::user()->type =='Employee')
+        @php
+            $employee=App\Models\Employee::where('user_id',\Auth::user()->id)->first();
+        @endphp
+        <a class="dash-link" href="{{route('employee.show',\Illuminate\Support\Facades\Crypt::encrypt($employee->id))}}">{{__('Employee')}}</a>
+    @else
+        <a href="{{route('enquiry.index')}}" class="dash-link">
+            {{ __('Enquiry Report') }}
+        </a>
+    @endif
+</li>
 
                                     @if( Gate::check('manage set salary') || Gate::check('manage pay slip'))
                                         <li class="dash-item dash-hasmenu  {{ (Request::segment(1) == 'setsalary' || Request::segment(1) == 'payslip') ? 'active dash-trigger' : ''}}">

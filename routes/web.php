@@ -1570,6 +1570,9 @@ Route::group(['middleware' => ['verified']], function () {
     Route::post('warehouse-transfer/getquantity', [WarehouseTransferController::class, 'getquantity'])->name('warehouse-transfer.getquantity')->middleware(['auth', 'XSS']);
 
 
+    // Enquiry Routes
+    Route::resource('enquiry', EnquiryController::class)->middleware(['auth', 'XSS', 'revalidate']);
+    Route::get('enquiry/{id}/show', [EnquiryController::class, 'show'])->name('enquiry.show');
 
 
     //pos barcode
