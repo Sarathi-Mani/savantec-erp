@@ -325,7 +325,13 @@ Route::group(['middleware' => ['verified']], function () {
 
     Route::any('edit-profile', [UserController::class, 'editprofile'])->name('update.account')->middleware(['auth', 'XSS', 'revalidate']);
 
-    Route::resource('users', UserController::class)->middleware(['auth', 'XSS', 'revalidate']);
+   Route::get('users/create', [UserController::class, 'create'])->name('users.create')->middleware(['auth', 'XSS', 'revalidate']);
+   Route::post('users', [UserController::class, 'store'])->name('users.store')->middleware(['auth', 'XSS', 'revalidate']);
+   Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit')->middleware(['auth', 'XSS', 'revalidate']);
+   Route::put('users/{user}', [UserController::class, 'update'])->name('users.update')->middleware(['auth', 'XSS', 'revalidate']);
+   Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware(['auth', 'XSS', 'revalidate']);
+   Route::get('users', [UserController::class, 'index'])->name('users.index')->middleware(['auth', 'XSS', 'revalidate']);
+
 
     Route::post('change-password', [UserController::class, 'updatePassword'])->name('update.password');
 

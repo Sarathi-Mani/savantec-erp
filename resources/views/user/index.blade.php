@@ -20,7 +20,7 @@
             </a>
         @endif
         @can('create user')
-            <a href="#" data-size="lg" data-url="{{ route('users.create') }}" data-ajax-popup="true"  data-bs-toggle="tooltip" title="{{__('Create')}}"  class="btn btn-sm btn-primary">
+            <a href="{{ route('users.create') }}" data-bs-toggle="tooltip" title="{{__('Create')}}"  class="btn btn-sm btn-primary">
                 <i class="ti ti-plus"></i>
             </a>
         @endcan
@@ -53,12 +53,12 @@
 
                                                 <div class="dropdown-menu dropdown-menu-end">
 
-                                                    @can('edit user')
-                                                        <a href="#!" data-size="lg" data-url="{{ route('users.edit',$user->id) }}" data-ajax-popup="true" class="dropdown-item" data-bs-original-title="{{__('Edit User')}}">
-                                                            <i class="ti ti-pencil"></i>
-                                                            <span>{{__('Edit')}}</span>
-                                                        </a>
-                                                    @endcan
+                                                  @can('edit user')
+    <a href="{{ route('users.edit', $user->id) }}" class="dropdown-item" data-bs-original-title="{{__('Edit User')}}">
+        <i class="ti ti-pencil"></i>
+        <span>{{__('Edit')}}</span>
+    </a>
+@endcan
 
                                                     @can('delete user')
                                                         {!! Form::open(['method' => 'DELETE', 'route' => ['users.destroy', $user['id']],'id'=>'delete-form-'.$user['id']]) !!}

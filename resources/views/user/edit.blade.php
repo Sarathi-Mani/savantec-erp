@@ -1,53 +1,286 @@
-{{Form::model($user,array('route' => array('users.update', $user->id), 'method' => 'PUT')) }}
-<div class="modal-body">
+@extends('layouts.admin')
+
+@section('page-title')
+    {{__('Edit User')}}
+@endsection
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{route('dashboard')}}">{{__('Dashboard')}}</a></li>
+    <li class="breadcrumb-item"><a href="{{route('users.index')}}">{{__('User')}}</a></li>
+    <li class="breadcrumb-item">{{__('Edit')}}</li>
+@endsection
+
+@section('content')
     <div class="row">
-        <div class="col-md-6">
-            <div class="form-group ">
-                {{Form::label('name',__('Name'),['class'=>'form-label']) }}
-                {{Form::text('name',null,array('class'=>'form-control font-style','placeholder'=>__('Enter User Name')))}}
-                @error('name')
-                <small class="invalid-name" role="alert">
-                    <strong class="text-danger">{{ $message }}</strong>
-                </small>
-                @enderror
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-                {{Form::label('email',__('Email'),['class'=>'form-label'])}}
-                {{Form::text('email',null,array('class'=>'form-control','placeholder'=>__('Enter User Email')))}}
-                @error('email')
-                <small class="invalid-email" role="alert">
-                    <strong class="text-danger">{{ $message }}</strong>
-                </small>
-                @enderror
-            </div>
-        </div>
-        @if(\Auth::user()->type != 'super admin')
-            <div class="form-group col-md-12">
-                {{ Form::label('role', __('User Role'),['class'=>'form-label']) }}
-                {!! Form::select('role', $roles, $user->roles,array('class' => 'form-control select','required'=>'required')) !!}
-                @error('role')
-                <small class="invalid-role" role="alert">
-                    <strong class="text-danger">{{ $message }}</strong>
-                </small>
-                @enderror
-            </div>
-        @endif
-        @if(!$customFields->isEmpty())
-            <div class="col-md-6">
-                <div class="tab-pane fade show" id="tab-2" role="tabpanel">
-                    @include('customFields.formBuilder')
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">{{__('Edit User')}}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('users.update', $user->id) }}">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->name) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if(\Auth::user()->type != 'super admin')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="role" class="form-label">{{ __('Role') }} <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="role" name="role" required>
+                                        <option value="">{{ __('Select Role') }}</option>
+                                        @foreach($roles as $id => $role)
+                                            <option value="{{ $id }}" {{ $user->type == $role ? 'selected' : '' }}>{{ $role }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Empty column for alignment -->
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Custom Fields -->
+                        @if(!$customFields->isEmpty())
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5>{{ __('Additional Information') }}</h5>
+                                </div>
+                                @foreach($customFields as $field)
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="customField[{{$field->id}}]" class="form-label">{{ $field->name }}</label>
+                                            @php
+                                                $value = isset($user->customField) ? $user->customField[$field->id] : '';
+                                            @endphp
+                                            @if($field->type == 'text')
+                                                <input type="text" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'number')
+                                                <input type="number" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'date')
+                                                <input type="date" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'textarea')
+                                                <textarea class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]">{{ old('customField['.$field->id.']', $value) }}</textarea>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div class="form-group text-end mt-4">
+                            <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
+                            <a href="{{ route('users.index') }}" class="btn btn-secondary">{{ __('Close') }}</a>
+                        </div>
+                    </form>
                 </div>
             </div>
-        @endif
+        </div>
     </div>
+@endsection@extends('layouts.admin')
 
-</div>
+@section('page-title')
+    {{__('Edit User')}}
+@endsection
 
-<div class="modal-footer">
-    <input type="button" value="{{__('Cancel')}}" class="btn  btn-light"data-bs-dismiss="modal">
-    <input type="submit" value="{{__('Update')}}" class="btn  btn-primary">
-</div>
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{route('dashboard')}}">{{__('Dashboard')}}</a></li>
+    <li class="breadcrumb-item"><a href="{{route('users.index')}}">{{__('User')}}</a></li>
+    <li class="breadcrumb-item">{{__('Edit')}}</li>
+@endsection
 
-{{Form::close()}}
+@section('content')
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">{{__('Edit User')}}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('users.update', $user->id) }}">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->name) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if(\Auth::user()->type != 'super admin')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="role" class="form-label">{{ __('Role') }} <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="role" name="role" required>
+                                        <option value="">{{ __('Select Role') }}</option>
+                                        @foreach($roles as $id => $role)
+                                            <option value="{{ $id }}" {{ $user->type == $role ? 'selected' : '' }}>{{ $role }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Empty column for alignment -->
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Custom Fields -->
+                        @if(!$customFields->isEmpty())
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5>{{ __('Additional Information') }}</h5>
+                                </div>
+                                @foreach($customFields as $field)
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="customField[{{$field->id}}]" class="form-label">{{ $field->name }}</label>
+                                            @php
+                                                $value = isset($user->customField) ? $user->customField[$field->id] : '';
+                                            @endphp
+                                            @if($field->type == 'text')
+                                                <input type="text" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'number')
+                                                <input type="number" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'date')
+                                                <input type="date" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'textarea')
+                                                <textarea class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]">{{ old('customField['.$field->id.']', $value) }}</textarea>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div class="form-group text-end mt-4">
+                            <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
+                            <a href="{{ route('users.index') }}" class="btn btn-secondary">{{ __('Close') }}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection@extends('layouts.admin')
+
+@section('page-title')
+    {{__('Edit User')}}
+@endsection
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{route('dashboard')}}">{{__('Dashboard')}}</a></li>
+    <li class="breadcrumb-item"><a href="{{route('users.index')}}">{{__('User')}}</a></li>
+    <li class="breadcrumb-item">{{__('Edit')}}</li>
+@endsection
+
+@section('content')
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">{{__('Edit User')}}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('users.update', $user->id) }}">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->name) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if(\Auth::user()->type != 'super admin')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="role" class="form-label">{{ __('Role') }} <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="role" name="role" required>
+                                        <option value="">{{ __('Select Role') }}</option>
+                                        @foreach($roles as $id => $role)
+                                            <option value="{{ $id }}" {{ $user->type == $role ? 'selected' : '' }}>{{ $role }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Empty column for alignment -->
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Custom Fields -->
+                        @if(!$customFields->isEmpty())
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5>{{ __('Additional Information') }}</h5>
+                                </div>
+                                @foreach($customFields as $field)
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="customField[{{$field->id}}]" class="form-label">{{ $field->name }}</label>
+                                            @php
+                                                $value = isset($user->customField) ? $user->customField[$field->id] : '';
+                                            @endphp
+                                            @if($field->type == 'text')
+                                                <input type="text" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'number')
+                                                <input type="number" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'date')
+                                                <input type="date" class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]" value="{{ old('customField['.$field->id.']', $value) }}">
+                                            @elseif($field->type == 'textarea')
+                                                <textarea class="form-control" id="customField[{{$field->id}}]" name="customField[{{$field->id}}]">{{ old('customField['.$field->id.']', $value) }}</textarea>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div class="form-group text-end mt-4">
+                            <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
+                            <a href="{{ route('users.index') }}" class="btn btn-secondary">{{ __('Close') }}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

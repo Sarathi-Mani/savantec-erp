@@ -52,21 +52,20 @@ class UserController extends Controller
 
     }
 
-    public function create()
+   public function create()
+{
+    $customFields = CustomField::where('created_by', '=', \Auth::user()->creatorId())->where('module', '=', 'user')->get();
+    $user  = \Auth::user();
+    $roles = Role::where('created_by', '=', $user->creatorId())->where('name','!=','client')->get()->pluck('name', 'id');
+    if(\Auth::user()->can('create user'))
     {
-
-        $customFields = CustomField::where('created_by', '=', \Auth::user()->creatorId())->where('module', '=', 'user')->get();
-        $user  = \Auth::user();
-        $roles = Role::where('created_by', '=', $user->creatorId())->where('name','!=','client')->get()->pluck('name', 'id');
-        if(\Auth::user()->can('create user'))
-        {
-            return view('user.create', compact('roles', 'customFields'));
-        }
-        else
-        {
-            return redirect()->back();
-        }
+        return view('user.create', compact('roles', 'customFields'));
     }
+    else
+    {
+        return redirect()->back();
+    }
+}
 
     public function store(Request $request)
     {
@@ -186,10 +185,9 @@ class UserController extends Controller
                 $resp = Utility::sendEmailTemplate('new_user', [$user->id => $user->email], $userArr);
 
 
-                return redirect()->route('users.index')->with('success', __('User successfully created.') . ((!empty($resp) && $resp['is_success'] == false && !empty($resp['error'])) ? '<br> <span class="text-danger">' . $resp['error'] . '</span>' : ''));
-            }
-            return redirect()->route('users.index')->with('success', __('User successfully created.'));
-
+              return redirect()->route('user.index')->with('success', __('User successfully created.') . ((!empty($resp) && $resp['is_success'] == false && !empty($resp['error'])) ? '<br> <span class="text-danger">' . $resp['error'] . '</span>' : ''));
+}
+return redirect()->route('user.index')->with('success', __('User successfully created.'));
         }
         else
         {
@@ -202,24 +200,23 @@ class UserController extends Controller
         return redirect()->route('user.index');
     }
 
-    public function edit($id)
+   public function edit($id)
+{
+    $user  = \Auth::user();
+    $roles = Role::where('created_by', '=', $user->creatorId())->where('name','!=','client')->get()->pluck('name', 'id');
+    if(\Auth::user()->can('edit user'))
     {
-        $user  = \Auth::user();
-        $roles = Role::where('created_by', '=', $user->creatorId())->where('name','!=','client')->get()->pluck('name', 'id');
-        if(\Auth::user()->can('edit user'))
-        {
-            $user              = User::findOrFail($id);
-            $user->customField = CustomField::getData($user, 'user');
-            $customFields      = CustomField::where('created_by', '=', \Auth::user()->creatorId())->where('module', '=', 'user')->get();
+        $user              = User::findOrFail($id);
+        $user->customField = CustomField::getData($user, 'user');
+        $customFields      = CustomField::where('created_by', '=', \Auth::user()->creatorId())->where('module', '=', 'user')->get();
 
-            return view('user.edit', compact('user', 'roles', 'customFields'));
-        }
-        else
-        {
-            return redirect()->back();
-        }
-
+        return view('user.edit', compact('user', 'roles', 'customFields'));
     }
+    else
+    {
+        return redirect()->back();
+    }
+}
 
 
     public function update(Request $request, $id)
@@ -253,7 +250,7 @@ class UserController extends Controller
                 $roles[] = $role->id;
                 $user->roles()->sync($roles);
 
-                return redirect()->route('users.index')->with(
+                return redirect()->route('user.index')->with(
                     'success', 'User successfully updated.'
                 );
             }
@@ -278,7 +275,7 @@ class UserController extends Controller
                 $roles[] = $request->role;
                 $user->roles()->sync($roles);
 
-                return redirect()->route('users.index')->with(
+                return redirect()->route('user.index')->with(
                     'success', 'User successfully updated.'
                 );
             }
@@ -316,7 +313,7 @@ class UserController extends Controller
                     if($employee){
                         $delete_user = User::where(['id' => $user->id])->delete();
                         if($delete_user){
-                            return redirect()->route('users.index')->with('success', __('User successfully deleted .'));
+                            return redirect()->route('user.index')->with('success', __('User successfully deleted .'));
                         }else{
                             return redirect()->back()->with('error', __('Something is wrong.'));
                         }
@@ -325,7 +322,7 @@ class UserController extends Controller
                     }
                 }
 
-                return redirect()->route('users.index')->with('success', __('User successfully deleted .'));
+                return redirect()->route('user.index')->with('success', __('User successfully deleted .'));
             }
             else
             {
@@ -605,7 +602,7 @@ class UserController extends Controller
                              'password' => Hash::make($request->password),
                          ])->save();
 
-        return redirect()->route('users.index')->with(
+        return redirect()->route('user.index')->with(
             'success', 'User Password successfully updated.'
         );
 
