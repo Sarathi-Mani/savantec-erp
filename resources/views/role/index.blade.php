@@ -10,7 +10,7 @@
 @endsection
 @section('action-btn')
     <div class="float-end">
-        <a href="#" data-size="lg" data-url="{{ route('roles.create') }}" data-ajax-popup="true" data-bs-toggle="tooltip" title="{{__('Create New Role')}}" class="btn btn-sm btn-primary">
+        <a href="{{ route('roles.create') }}" data-bs-toggle="tooltip" title="{{__('Create New Role')}}" class="btn btn-sm btn-primary">
             <i class="ti ti-plus"></i>
         </a>
     </div>

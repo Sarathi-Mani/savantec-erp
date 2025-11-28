@@ -29,32 +29,31 @@ class RoleController extends Controller
 
 
     public function create()
+{
+    if(\Auth::user()->can('create role'))
     {
-        if(\Auth::user()->can('create role'))
+        $user = \Auth::user();
+        if($user->type == 'super admin')
         {
-            $user = \Auth::user();
-            if($user->type == 'super admin')
-            {
-                $permissions = Permission::all()->pluck('name', 'id')->toArray();
-            }
-            else
-            {
-                $permissions = new Collection();
-                foreach($user->roles as $role)
-                {
-                    $permissions = $permissions->merge($role->permissions);
-                }
-                $permissions = $permissions->pluck('name', 'id')->toArray();
-            }
-
-            return view('role.create', ['permissions' => $permissions]);
+            $permissions = Permission::all()->pluck('name', 'id')->toArray();
         }
         else
         {
-            return redirect()->back()->with('error', 'Permission denied.');
+            $permissions = new Collection();
+            foreach($user->roles as $role)
+            {
+                $permissions = $permissions->merge($role->permissions);
+            }
+            $permissions = $permissions->pluck('name', 'id')->toArray();
         }
 
+        return view('role.create', ['permissions' => $permissions]);
     }
+    else
+    {
+        return redirect()->back()->with('error', 'Permission denied.');
+    }
+}
 
 
     public function store(Request $request)
