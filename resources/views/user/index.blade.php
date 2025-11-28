@@ -64,7 +64,7 @@
                         <td>{{ (!empty($user->last_login_at)) ? $user->last_login_at : '' }}</td>
                         <td>
                             @if($user->delete_status==0)
-                                <span class="badge bg-danger">{{__('Soft Deleted')}}</span>
+                                <span class="badge bg-danger">{{__('Inactive')}}</span>
                             @else
                                 <span class="badge bg-success">{{__('Active')}}</span>
                             @endif
@@ -76,33 +76,29 @@
                         <td>
                             @if(Gate::check('edit user') || Gate::check('delete user'))
                                 @if($user->is_active == 1)
-                                    <div class="action-btn bg-light-secondary ms-2">
-                                        <div class="dropdown">
-                                            <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                @can('edit user')
-                                                    <a href="{{ route('users.edit', $user->id) }}" class="dropdown-item" data-bs-original-title="{{__('Edit User')}}">
-                                                        <i class="ti ti-pencil"></i>
-                                                        <span>{{__('Edit')}}</span>
-                                                    </a>
-                                                @endcan
-
-                                                @can('delete user')
-                                                    {!! Form::open(['method' => 'DELETE', 'route' => ['users.destroy', $user['id']],'id'=>'delete-form-'.$user['id']]) !!}
-                                                    <a href="#!" class="dropdown-item bs-pass-para">
-                                                        <i class="ti ti-archive"></i>
-                                                        <span> @if($user->delete_status!=0){{__('Delete')}} @else {{__('Restore')}}@endif</span>
-                                                    </a>
-                                                    {!! Form::close() !!}
-                                                @endcan
-
-                                                <a href="#!" data-url="{{route('users.reset',\Crypt::encrypt($user->id))}}" data-ajax-popup="true" data-size="md" class="dropdown-item" data-bs-original-title="{{__('Reset Password')}}">
-                                                    <i class="ti ti-adjustments"></i>
-                                                    <span>{{__('Reset Password')}}</span>
+                                    <div class="d-flex">
+                                        @can('edit user')
+                                            <div class="action-btn bg-light-secondary ms-2">
+                                                <a href="{{ route('users.edit', $user->id) }}" class="mx-3 btn btn-sm d-inline-flex align-items-center" data-bs-toggle="tooltip" title="{{__('Edit')}}">
+                                                    <i class="ti ti-pencil text-dark"></i>
                                                 </a>
                                             </div>
+                                        @endcan
+
+                                        @can('delete user')
+                                            <div class="action-btn bg-light-secondary ms-2">
+                                                {!! Form::open(['method' => 'DELETE', 'route' => ['users.destroy', $user['id']],'id'=>'delete-form-'.$user['id']]) !!}
+                                                <a href="#!" class="mx-3 btn btn-sm d-inline-flex align-items-center bs-pass-para" data-bs-toggle="tooltip" title="@if($user->delete_status!=0){{__('Delete')}} @else {{__('Restore')}}@endif" data-confirm="{{__('Are You Sure?')}}" data-text="{{__('This action can not be undone. Do you want to continue?')}}" data-confirm-yes="delete-form-{{$user['id']}}">
+                                                    <i class="ti ti-archive text-dark"></i>
+                                                </a>
+                                                {!! Form::close() !!}
+                                            </div>
+                                        @endcan
+
+                                        <div class="action-btn bg-light-secondary ms-2">
+                                            <a href="#!" data-url="{{route('users.reset',\Crypt::encrypt($user->id))}}" data-ajax-popup="true" data-size="md" class="mx-3 btn btn-sm d-inline-flex align-items-center" data-bs-toggle="tooltip" title="{{__('Reset Password')}}">
+                                                <i class="ti ti-adjustments text-dark"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 @else
@@ -118,3 +114,24 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Add click event for delete/restore buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const passButtons = document.querySelectorAll('.bs-pass-para');
+        passButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const formId = this.getAttribute('data-confirm-yes');
+                const confirmText = this.getAttribute('data-text');
+                const confirmMessage = this.getAttribute('data-confirm');
+                
+                if (confirm(confirmMessage + '\n\n' + confirmText)) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush
