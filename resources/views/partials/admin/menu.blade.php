@@ -250,8 +250,8 @@
                                     </li>
                                 @endcan
                                 @can('manage client')
-                                    <li class="dash-item {{ (Request::route()->getName() == 'clients.index' || Request::segment(1) == 'clients' || Request::route()->getName() == 'clients.edit') ? ' active' : '' }}">
-                                        <a class="dash-link" href="{{ route('clients.index') }}">{{__('Client')}}</a>
+                                    <li class="dash-item {{ (Request::route()->getName() == 'company.index' || Request::segment(1) == 'company' || Request::route()->getName() == 'clients.edit') ? ' active' : '' }}">
+                                        <a class="dash-link" href="{{ route('company.index') }}">{{__('Company')}}</a>
                                     </li>
                                 @endcan
 {{--                                    @can('manage user')--}}

@@ -14,6 +14,7 @@ use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\ProductStockController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\VenderController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\BankTransferController;
 use App\Http\Controllers\TaxController;
@@ -699,7 +700,13 @@ Route::group(['middleware' => ['verified']], function () {
 
     // Client Module
 
-    Route::resource('clients', ClientController::class)->middleware(['auth', 'XSS']);
+    Route::resource('company', CompanyController::class)->middleware(['auth', 'XSS']);
+    Route::get('company/create', [CompanyController::class, 'create'])->name('company.create')->middleware(['auth', 'XSS', 'revalidate']);
+Route::post('company', [CompanyController::class, 'store'])->name('company.store')->middleware(['auth', 'XSS', 'revalidate']);
+Route::get('company/{company}/edit', [CompanyController::class, 'edit'])->name('company.edit')->middleware(['auth', 'XSS', 'revalidate']);
+Route::put('company/{company}', [CompanyController::class, 'update'])->name('company.update')->middleware(['auth', 'XSS', 'revalidate']);
+Route::delete('company/{company}', [CompanyController::class, 'destroy'])->name('company.destroy')->middleware(['auth', 'XSS', 'revalidate']);
+Route::get('company', [CompanyController::class, 'index'])->name('company.index')->middleware(['auth', 'XSS', 'revalidate']);
 
     Route::any('client-reset-password/{id}', [ClientController::class, 'clientPassword'])->name('clients.reset');
     Route::post('client-reset-password/{id}', [ClientController::class, 'clientPasswordReset'])->name('client.password.update');
